@@ -18,9 +18,16 @@ int main() {
   cin >> m;
   vector<int> ways(n);
   string last_s;
+  int l = -1;
   for (int i = 0; i < m; ++i) {
     string s;
     cin >> s;
+    int nl = *(items[s].begin());
+    int nr = *(prev(items[s].end()));
+    if (nr < l) {
+      cout << "impossible";
+      return 0;
+    }
     if (last_s.empty()) {
       for (int j : items[s])
         ways[j] = 1;
@@ -31,17 +38,18 @@ int main() {
         acc.emplace_back(acc[acc.size() - 1] + ways[j]);
         ways[j] = 0;
       }
+      int delta = 0;
+      auto it = last.begin();
       for (int j : items[s]) {
-        auto it = last.upper_bound(j);
-        int delta = 0;
-        while (it != last.begin()) {
+        while (it != last.end() && *it <= j) {
+          it++;
           delta++;
-          it--;
         }
         ways[j] = min(acc[delta], 2);
       }
     }
     last_s = s;
+    l = max(l, nl);
   }
   int sum = 0;
   for (int i = 0; i < n; ++i)
